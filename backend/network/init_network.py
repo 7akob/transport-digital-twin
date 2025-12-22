@@ -9,8 +9,8 @@ def init_network():
         "Kallio": {"type": "sink", "demand": 120},
         "Töölö": {"type": "sink", "demand": 80},
         "Itäkeskus": {"type": "sink", "demand": 100},
-        "Depot_West": {"type": "source", "demand": -300},
-        "Depot_East": {"type": "source", "demand": -250},
+        "Depot_West": {"type": "source", "demand": -350},
+        "Depot_East": {"type": "source", "demand": -300},
         "Transfer_1": {"type": "ghost", "demand": 0},
     }
 
