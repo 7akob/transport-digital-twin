@@ -88,6 +88,20 @@ Example response:
 }
 ```
 
+## GET /network
+This returns the network used in the simulation in json format, example:
+```json
+{
+  "nodes": [
+    { "id": "Kamppi", "type": "sink", "demand": 90 },
+    { "id": "Transfer_Central", "type": "ghost", "demand": 0 }
+  ],
+  "edges": [
+    { "source": "Kamppi", "target": "Transfer_Central", "length": 3, "capacity": 100 }
+  ]
+}
+```
+
 ## Notes
 - The backend runs fully locally
 - No database or cloud services are required
