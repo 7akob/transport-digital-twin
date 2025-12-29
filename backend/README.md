@@ -23,3 +23,71 @@ The backend is self-contained, runs locally, and does not depend on the frontend
 | Pressure loss | Congestion         |
 | Thermal loss  | Delay              |
 | Pump power    | Transport capacity |
+
+## How to run
+
+1. Activate viritual envoirement
+```
+source myvenv/bin/activate
+```
+
+2. Install dependecies
+```
+pip install -r requirements.txt
+```
+
+3. Start backend sevrver
+```
+python -m backend.api.main
+```
+
+## Available endpoints
+
+### /health
+For debugging and testing purposes, response visible in a regular browser.
+Succesful response should look like:
+```json
+{
+"status": "ok"
+}
+```
+
+### POST /pareto
+Runs the transport network optimisation and returns Paretp-optimal endpoint solutions:
+- congestion-optimal
+- delay-optimal
+
+Since this endpoint is reached through POST, test it with curl:
+```
+curl -X POST http://127.0.0.1:5000/pareto
+```
+
+Example response:
+```json
+{
+  "congestion_optimal": {
+    "capacity_scale": 2.0,
+    "congestion": 350,
+    "delay": 72.5,
+    "objective": 350.0,
+    "weights": {
+      "congestion": 1.0,
+      "delay": 0.0
+    }
+  },
+  "delay_optimal": {
+    "capacity_scale": 2.0,
+    "congestion": 350,
+    "delay": 72.5,
+    "objective": 72.5,
+    "weights": {
+      "congestion": 0.0,
+      "delay": 1.0
+    }
+  }
+}
+```
+
+## Notes
+- The backend runs fully locally
+- No database or cloud services are required
