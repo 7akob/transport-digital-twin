@@ -16,8 +16,10 @@ transport-digital-twin/
 │   │   ├── init_network.py      # Build RTN graph (Digital Twin)
 │   │   ├── simulate_flow.py     # Passenger flow + congestion/delay
 │   │   ├── objective.py         # Objective function (congestion + delay)
-│   │   ├── optimize.py          # Optimisation loop & Pareto endpoints
+│   │   └── optimize.py          # Optimisation loop & Pareto endpoints
 │   │
+│   ├── api/
+│   │   └── main.py              # Send backend data to frontend with FastAPI
 │   └── README.md                # Backend docs 
 │
 ├── frontend/
