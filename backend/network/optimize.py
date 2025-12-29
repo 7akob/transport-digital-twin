@@ -1,6 +1,6 @@
-from init_network import init_network, add_edges
-from simulate_flow import assign_passenger_flow, compute_metrics
-from objective import compute_objective
+from backend.network.init_network import init_network, add_edges
+from backend.network.simulate_flow import assign_passenger_flow, compute_metrics
+from backend.network.objective import compute_objective
 
 
 def run_simulation(capacity_scale=1.0, w_congestion=0.6, w_delay=0.4):

@@ -1,6 +1,6 @@
 import networkx as nx
-from init_network import init_network, add_edges
-from objective import compute_objective
+from backend.network.init_network import init_network, add_edges
+
 
 def assign_passenger_flow(G):
     # initialize flow on all edges
