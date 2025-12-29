@@ -1,5 +1,6 @@
 import networkx as nx
 from init_network import init_network, add_edges
+from objective import compute_objective
 
 def assign_passenger_flow(G):
     # initialize flow on all edges
@@ -75,3 +76,6 @@ if __name__ == "__main__":
     print("\nTOTAL METRICS")
     print("Total congestion:", congestion)
     print("Total delay:", delay)
+
+    objective_value = compute_objective(congestion, delay)
+    print("Objective value:", objective_value)
