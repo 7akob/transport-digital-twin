@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from backend.network.optimize import pareto_endpoints
 from backend.network.init_network import init_network, add_edges
+from backend.network.export import save_pareto_results
 
 app = Flask(__name__)
 
@@ -10,7 +11,10 @@ def health():
 
 @app.route("/pareto", methods=["POST"])
 def pareto():
-    return jsonify(pareto_endpoints())
+    endpoints = pareto_endpoints()
+    save_pareto_results(endpoints)
+    return jsonify(endpoints)
+
 
 @app.route("/network", methods=["GET"])
 def network():
