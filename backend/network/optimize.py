@@ -1,5 +1,5 @@
 from backend.network.init_network import init_network, add_edges
-from backend.network.simulate_flow import assign_passenger_flow, compute_metrics
+from backend.network.simulate_flow import assign_passenger_flow, compute_metrics, extract_edge_metrics
 from backend.network.objective import compute_objective
 
 
@@ -13,6 +13,9 @@ def run_simulation(capacity_scale=1.0, w_congestion=0.6, w_delay=0.4):
     assign_passenger_flow(G)
     congestion, delay = compute_metrics(G)
 
+    edge_metrics = extract_edge_metrics(G)
+
+
     objective = compute_objective(
         congestion,
         delay,
@@ -21,15 +24,17 @@ def run_simulation(capacity_scale=1.0, w_congestion=0.6, w_delay=0.4):
     )
 
     return {
-        "capacity_scale": capacity_scale,
-        "congestion": congestion,
-        "delay": delay,
-        "objective": objective,
-        "weights": {
-            "congestion": w_congestion,
-            "delay": w_delay
+    "capacity_scale": capacity_scale,
+    "congestion": congestion,
+    "delay": delay,
+    "objective": objective,
+    "edges": edge_metrics,
+    "weights": {
+        "congestion": w_congestion,
+        "delay": w_delay
         }
     }
+
 
 
 def optimize_capacity():

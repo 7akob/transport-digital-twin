@@ -43,48 +43,12 @@ python -m backend.api.main
 
 ## Available endpoints
 
-### /health
+### GET /health
 For debugging and testing purposes, response visible in a regular browser.
 Succesful response should look like:
 ```json
 {
 "status": "ok"
-}
-```
-
-### POST /pareto
-Runs the transport network optimisation and returns Paretp-optimal endpoint solutions:
-- congestion-optimal
-- delay-optimal
-
-Since this endpoint is reached through POST, test it with curl:
-```
-curl -X POST http://127.0.0.1:5000/pareto
-```
-
-Example response:
-```json
-{
-  "congestion_optimal": {
-    "capacity_scale": 2.0,
-    "congestion": 350,
-    "delay": 72.5,
-    "objective": 350.0,
-    "weights": {
-      "congestion": 1.0,
-      "delay": 0.0
-    }
-  },
-  "delay_optimal": {
-    "capacity_scale": 2.0,
-    "congestion": 350,
-    "delay": 72.5,
-    "objective": 72.5,
-    "weights": {
-      "congestion": 0.0,
-      "delay": 1.0
-    }
-  }
 }
 ```
 
@@ -99,6 +63,39 @@ This returns the network used in the simulation in json format, example:
   "edges": [
     { "source": "Kamppi", "target": "Transfer_Central", "length": 3, "capacity": 100 }
   ]
+}
+```
+
+### POST /pareto
+Runs the optimisation and returns extreme trade-off solutions for the reference network.
+
+Since this endpoint is reached through POST, test it with curl:
+```
+curl -X POST http://127.0.0.1:5000/pareto
+```
+
+Response includes:
+- aggregated metrics (total congestion, total delay)
+- edge-level metrics (flow, congestion, delay per edge)
+
+Example response (simplified):
+```json
+{
+  "congestion_optimal": {
+    "capacity_scale": 2.0,
+    "congestion": 470,
+    "delay": 98.0,
+    "edges": [
+      {
+        "source": "Depot_West",
+        "target": "Kamppi",
+        "flow": 510,
+        "capacity": 200,
+        "congestion": 310,
+        "delay": 20.4
+      }
+    ]
+  }
 }
 ```
 

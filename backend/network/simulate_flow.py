@@ -58,6 +58,23 @@ def compute_metrics(G):
 
     return total_congestion, total_delay
 
+def extract_edge_metrics(G):
+    edge_metrics = []
+
+    for u, v, d in G.edges(data=True):
+        edge_metrics.append({
+            "source": u,
+            "target": v,
+            "flow": d.get("flow", 0),
+            "capacity": d["max_capacity"],
+            "congestion": d.get("congestion", 0),
+            "delay": d.get("delay", 0),
+            "length": d["length"]
+        })
+
+    return edge_metrics
+
+
 if __name__ == "__main__":
     G = init_network()
     add_edges(G)
