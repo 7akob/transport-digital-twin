@@ -2,8 +2,10 @@ from flask import Flask, jsonify
 from backend.network.optimize import pareto_endpoints
 from backend.network.init_network import init_network, add_edges
 from backend.network.export import save_pareto_results
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route("/health") # For debugging
 def health():
