@@ -1,7 +1,7 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from backend.network.optimize import pareto_endpoints
 from backend.network.init_network import init_network, add_edges
-from backend.network.export import save_pareto_results
+from backend.network.export import export_results_to_csv
 from flask_cors import CORS
 import tempfile
 from backend.network.load_excel import load_network_from_excel
@@ -10,6 +10,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 ACTIVE_GRAPH = None
+LATEST_RESULTS = None
 
 @app.route("/health") # For debugging
 def health():
@@ -17,12 +18,17 @@ def health():
 
 @app.route("/pareto", methods=["POST"])
 def pareto():
+    global LATEST_RESULTS
+
     if ACTIVE_GRAPH is None:
         return jsonify({"error": "No network uploaded"}), 400
 
     endpoints = pareto_endpoints(G=ACTIVE_GRAPH)
     save_pareto_results(endpoints)
+
+    LATEST_RESULTS = endpoints  # 👈 store for download
     return jsonify(endpoints)
+
 
 @app.route("/network", methods=["GET"])
 def network():
@@ -75,6 +81,18 @@ def upload_network():
         "edges": ACTIVE_GRAPH.number_of_edges()
     })
 
+@app.route("/download-results", methods=["GET"])
+def download_results():
+    if LATEST_RESULTS is None:
+        return jsonify({"error": "No results available"}), 400
+
+    file_path = export_results_to_csv(LATEST_RESULTS)
+
+    return send_file(
+        file_path,
+        as_attachment=True,
+        download_name="transport_simulation_results.csv"
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
