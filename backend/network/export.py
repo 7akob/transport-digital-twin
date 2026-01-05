@@ -1,30 +1,32 @@
-import pandas as pd
-import os
+from pathlib import Path
+import csv
 from datetime import datetime
 
+def export_results_to_csv(results, output_dir: Path):
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-def export_results_to_csv(results, output_dir="backend/data/output"):
-    os.makedirs(output_dir, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    file_path = output_dir / f"simulation_results_{timestamp}.csv"
 
-    rows = []
+    with open(file_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
 
-    for case, data in results.items():
-        for edge in data["edges"]:
-            rows.append({
-                "case": case,
-                "source": edge["source"],
-                "target": edge["target"],
-                "flow": edge["flow"],
-                "capacity": edge["capacity"],
-                "congestion": edge["congestion"],
-                "delay": edge["delay"],
-                "length": edge["length"],
-            })
+        writer.writerow([
+            "case", "source", "target", "flow",
+            "capacity", "congestion", "delay", "length"
+        ])
 
-    df = pd.DataFrame(rows)
+        for case, data in results.items():
+            for e in data["edges"]:
+                writer.writerow([
+                    case,
+                    e["source"],
+                    e["target"],
+                    e["flow"],
+                    e["capacity"],
+                    e["congestion"],
+                    e["delay"],
+                    e["length"],
+                ])
 
-    filename = f"simulation_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-    path = os.path.join(output_dir, filename)
-
-    df.to_csv(path, index=False)
-    return path
+    return file_path

@@ -5,6 +5,9 @@ from backend.network.export import export_results_to_csv
 from flask_cors import CORS
 import tempfile
 from backend.network.load_excel import load_network_from_excel
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -24,9 +27,8 @@ def pareto():
         return jsonify({"error": "No network uploaded"}), 400
 
     endpoints = pareto_endpoints(G=ACTIVE_GRAPH)
-    export_results_to_csv(endpoints)
 
-    LATEST_RESULTS = endpoints  # 👈 store for download
+    LATEST_RESULTS = endpoints  # store results for download
     return jsonify(endpoints)
 
 
@@ -83,15 +85,23 @@ def upload_network():
 
 @app.route("/download-results", methods=["GET"])
 def download_results():
+    global LATEST_RESULTS
+
     if LATEST_RESULTS is None:
         return jsonify({"error": "No results available"}), 400
 
-    file_path = export_results_to_csv(LATEST_RESULTS)
+    output_dir = PROJECT_ROOT / "backend" / "data" / "output"
+
+    file_path = export_results_to_csv(
+        LATEST_RESULTS,
+        output_dir=output_dir
+    )
 
     return send_file(
         file_path,
+        mimetype="text/csv",
         as_attachment=True,
-        download_name="transport_simulation_results.csv"
+        download_name=file_path.name
     )
 
 if __name__ == "__main__":
