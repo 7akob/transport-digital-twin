@@ -1,3 +1,4 @@
+flask-cors
 networkx
 flask
 pandas
