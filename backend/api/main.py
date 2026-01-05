@@ -24,7 +24,7 @@ def pareto():
         return jsonify({"error": "No network uploaded"}), 400
 
     endpoints = pareto_endpoints(G=ACTIVE_GRAPH)
-    save_pareto_results(endpoints)
+    export_results_to_csv(endpoints)
 
     LATEST_RESULTS = endpoints  # 👈 store for download
     return jsonify(endpoints)
