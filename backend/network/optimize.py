@@ -53,11 +53,11 @@ def run_simulation(
     }
 
 
-def pareto_endpoints(G):
+def pareto_endpoints(G, capacity_scale=None):
     """
     Compute two Pareto endpoints:
-    - congestion-optimal (only congestion matters)
-    - delay-optimal (only delay matters)
+    - congestion-optimal
+    - delay-optimal
     """
 
     endpoints = {}
@@ -67,12 +67,12 @@ def pareto_endpoints(G):
         "delay_optimal": (0.0, 1.0),
     }
 
-    capacity_scales = [0.5, 0.8, 1.0, 1.2, 1.5, 2.0]
+    scales = [capacity_scale] if capacity_scale else [0.5, 0.8, 1.0, 1.2, 1.5, 2.0]
 
     for name, (wc, wd) in cases.items():
         best = None
 
-        for scale in capacity_scales:
+        for scale in scales:
             result = run_simulation(
                 G=G,
                 capacity_scale=scale,
@@ -86,3 +86,4 @@ def pareto_endpoints(G):
         endpoints[name] = best
 
     return endpoints
+

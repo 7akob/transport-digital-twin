@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, send_file
-from backend.network.optimize import pareto_endpoints
+from backend.network.optimize import pareto_endpoints, run_simulation
 from backend.network.init_network import init_network, add_edges
 from backend.network.export import export_results_to_csv
 from flask_cors import CORS
@@ -26,9 +26,31 @@ def pareto():
     if ACTIVE_GRAPH is None:
         return jsonify({"error": "No network uploaded"}), 400
 
-    endpoints = pareto_endpoints(G=ACTIVE_GRAPH)
+    data = request.get_json(force=True, silent=True) or {}
 
-    LATEST_RESULTS = endpoints  # store results for download
+    weights = data.get("weights", {})
+    w_congestion = float(weights.get("congestion", 0.5))
+    w_delay = float(weights.get("delay", 0.5))
+    capacity_scale = float(data.get("capacity_scale", 1.0))
+
+    # Pareto endpoints
+    endpoints = pareto_endpoints(
+        G=ACTIVE_GRAPH,
+        capacity_scale=capacity_scale
+    )
+
+    # User-selected weighted solution (for UI preview)
+    selected = run_simulation(
+        G=ACTIVE_GRAPH,
+        capacity_scale=capacity_scale,
+        w_congestion=w_congestion,
+        w_delay=w_delay
+    )
+
+    endpoints["selected_solution"] = selected
+
+    LATEST_RESULTS = endpoints
+
     return jsonify(endpoints)
 
 
