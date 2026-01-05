@@ -1,4 +1,3 @@
-// frontend/src/api/client.ts
 import type { NetworkResponse, ParetoResponse } from "./types";
 
 const API_BASE = "/api";
@@ -7,13 +6,35 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, init);
 
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(
-      `${init?.method ?? "GET"} ${API_BASE}${path} failed: ${res.status} ${text}`
-    );
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      const data = await res.json().catch(() => null);
+      const msg = data?.error ?? "Request failed";
+      throw new Error(msg);
+    }
+
+    // If backend accidentally returns HTML, show generic message
+    throw new Error("Request failed");
   }
 
   return (await res.json()) as T;
+}
+
+async function httpBlob(path: string, init?: RequestInit): Promise<Blob> {
+  const res = await fetch(`${API_BASE}${path}`, init);
+
+  if (!res.ok) {
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      const data = await res.json().catch(() => null);
+      const msg = data?.error ?? "Request failed";
+      throw new Error(msg);
+    }
+
+    throw new Error("Request failed");
+  }
+
+  return await res.blob();
 }
 
 export function getNetwork(): Promise<NetworkResponse> {
@@ -41,4 +62,9 @@ export function uploadNetwork(file: File): Promise<{
     method: "POST",
     body: fd,
   });
+}
+
+// Download latest optimization results as a CSV (Blob).
+export function downloadResults(): Promise<Blob> {
+  return httpBlob("/download-results", { method: "GET" });
 }

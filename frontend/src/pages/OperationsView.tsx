@@ -1,6 +1,11 @@
 // frontend/src/pages/OperationsView.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getNetwork, postPareto, uploadNetwork } from "../api/client";
+import {
+  getNetwork,
+  postPareto,
+  uploadNetwork,
+  downloadResults,
+} from "../api/client";
 import type {
   NetworkResponse,
   ParetoResponse,
@@ -82,6 +87,26 @@ export function OperationsView() {
       setLoading(false);
       // allow selecting the same file again
       e.target.value = "";
+    }
+  }
+
+  async function onDownload() {
+    setErr(null);
+
+    try {
+      const blob = await downloadResults();
+
+      // Trigger a browser download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "simulation_results.csv"; // client-side filename
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (ex) {
+      setErr(String(ex));
     }
   }
 
@@ -193,9 +218,10 @@ export function OperationsView() {
             </button>
 
             <button
-              className="px-3 py-1.5 text-sm rounded bg-green-600 text-white border border-green-600"
-              disabled
-              title="Hook up later (export/download endpoint)"
+              className="px-3 py-1.5 text-sm rounded bg-green-600 text-white border border-green-600 disabled:opacity-60"
+              onClick={onDownload}
+              disabled={loading || !pareto}
+              title={!pareto ? "Run optimization first" : "Download CSV"}
             >
               Download
             </button>
