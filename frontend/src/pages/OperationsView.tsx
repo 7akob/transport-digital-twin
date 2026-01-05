@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { getNetwork, postPareto } from "../api/client";
+// frontend/src/pages/OperationsView.tsx
+import { useEffect, useMemo, useRef, useState } from "react";
+import { getNetwork, postPareto, uploadNetwork } from "../api/client";
 import type {
   NetworkResponse,
   ParetoResponse,
@@ -36,6 +37,14 @@ export function OperationsView() {
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  async function refreshAll() {
+    const [n, p] = await Promise.all([getNetwork(), postPareto({})]);
+    setNet(n);
+    setPareto(p);
+  }
+
   useEffect(() => {
     let alive = true;
 
@@ -43,10 +52,7 @@ export function OperationsView() {
       setLoading(true);
       setErr(null);
       try {
-        const [n, p] = await Promise.all([getNetwork(), postPareto({})]);
-        if (!alive) return;
-        setNet(n);
-        setPareto(p);
+        await refreshAll();
       } catch (e) {
         if (!alive) return;
         setErr(String(e));
@@ -59,6 +65,25 @@ export function OperationsView() {
       alive = false;
     };
   }, []);
+
+  async function onPickExcel(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setLoading(true);
+    setErr(null);
+
+    try {
+      await uploadNetwork(file);
+      await refreshAll();
+    } catch (ex) {
+      setErr(String(ex));
+    } finally {
+      setLoading(false);
+      // allow selecting the same file again
+      e.target.value = "";
+    }
+  }
 
   const sol: ParetoSolution | null = useMemo(() => {
     if (!pareto) return null;
@@ -124,6 +149,7 @@ export function OperationsView() {
                 : "bg-white text-slate-700"
             }`}
             onClick={() => setMode("delay")}
+            disabled={loading}
           >
             Min Delay
           </button>
@@ -134,6 +160,7 @@ export function OperationsView() {
                 : "bg-white text-slate-700"
             }`}
             onClick={() => setMode("congestion")}
+            disabled={loading}
           >
             Min Congestion
           </button>
@@ -143,42 +170,33 @@ export function OperationsView() {
       {err && <div className="mt-4 text-red-600 text-sm">{err}</div>}
 
       <div className="mt-6 border rounded-lg p-6 shadow-sm bg-white">
-        {/* Header + Legend + Actions */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="text-sm font-medium text-slate-700">
-              Operational Network Map (Dynamic Status)
-            </div>
-            <div className="mt-1 text-xs text-slate-500">
-              Links are colored by utilization (flow / capacity).
-            </div>
+        <div className="flex items-center justify-between">
+          <div className="text-sm font-medium text-slate-700">
+            Operational Network Map (Dynamic Status)
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Legend (matches linkColor thresholds) */}
-            <div className="hidden md:flex items-center gap-3 text-xs text-slate-600 border rounded-md px-3 py-2 bg-white">
-              <div className="font-semibold text-slate-700 mr-1">Legend</div>
+          <div className="flex items-center gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx"
+              className="hidden"
+              onChange={onPickExcel}
+            />
 
-              <div className="flex items-center gap-2">
-                <span className="inline-block w-3 h-3 rounded-sm bg-red-600" />
-                <span>≥ 100%</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="inline-block w-3 h-3 rounded-sm bg-amber-500" />
-                <span>80–99%</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="inline-block w-3 h-3 rounded-sm bg-slate-400" />
-                <span>&lt; 80%</span>
-              </div>
-            </div>
-
-            <button className="px-3 py-1.5 text-sm rounded bg-slate-100 text-slate-700 border">
+            <button
+              className="px-3 py-1.5 text-sm rounded bg-slate-100 text-slate-700 border"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={loading}
+            >
               Upload Excel
             </button>
-            <button className="px-3 py-1.5 text-sm rounded bg-green-600 text-white border border-green-600">
+
+            <button
+              className="px-3 py-1.5 text-sm rounded bg-green-600 text-white border border-green-600"
+              disabled
+              title="Hook up later (export/download endpoint)"
+            >
               Download
             </button>
           </div>

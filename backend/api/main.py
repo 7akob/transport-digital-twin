@@ -26,15 +26,17 @@ def pareto():
 
 @app.route("/network", methods=["GET"])
 def network():
-    G = init_network()
-    add_edges(G)
+    global ACTIVE_GRAPH
+
+    # If user uploaded a network, serve it
+    if ACTIVE_GRAPH is not None:
+        G = ACTIVE_GRAPH
+    else:
+        G = init_network()
+        add_edges(G)
 
     nodes = [
-        {
-            "id": n,
-            "type": d["type"],
-            "demand": d["demand"]
-        }
+        {"id": n, "type": d.get("type"), "demand": d.get("demand")}
         for n, d in G.nodes(data=True)
     ]
 
@@ -42,16 +44,14 @@ def network():
         {
             "source": u,
             "target": v,
-            "length": d["length"],
-            "capacity": d["max_capacity"]
+            "length": d.get("length"),
+            "capacity": d.get("max_capacity") or d.get("capacity"),
         }
         for u, v, d in G.edges(data=True)
     ]
 
-    return jsonify({
-        "nodes": nodes,
-        "edges": edges
-    })
+    return jsonify({"nodes": nodes, "edges": edges})
+
 
 @app.route("/upload-network", methods=["POST"])
 def upload_network():
