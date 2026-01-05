@@ -1,3 +1,5 @@
 networkx
 flask
 pandas
+numpy
+openpyxl
