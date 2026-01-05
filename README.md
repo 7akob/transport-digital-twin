@@ -12,7 +12,7 @@ The system combines:
 - and a web-based frontend for visualisation and operational decision support.
 
 A fixed, Helsinki-inspired reference transport network is used as the baseline scenario.
-## Project structure (so far)
+## Project structure 
 ```
 transport-digital-twin/
 │
@@ -47,10 +47,11 @@ transport-digital-twin/
 │ │ │ ├── AppLayout.tsx # Main layout wrapper
 │ │ │ ├── Sidebar.tsx # Navigation sidebar
 │ │ │ └── NetworkGraph.tsx # Network visualisation component
-│ │ │
+│ │ │ └── NavCard.tsx 
+│ │ │ 
 │ │ └── pages/
 │ │ ├── CommandCenter.tsx # Operational overview dashboard
-│ │ ├── TopologyView.tsx # Static network topology view
+│ │ ├── TopologyView.tsx # Network topology view
 │ │ ├── OperationsView.tsx# Optimisation & live status view
 │ │ └── SystemSettings.tsx# System configuration placeholder
 │ │

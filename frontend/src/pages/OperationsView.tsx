@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { getNetwork, postPareto } from "../api/client";
-import type { NetworkResponse, ParetoResponse, ParetoSolution, ParetoEdge } from "../api/types";
+import type {
+  NetworkResponse,
+  ParetoResponse,
+  ParetoSolution,
+  ParetoEdge,
+} from "../api/types";
 import { NetworkGraph } from "../components/NetworkGraph";
 
 type Mode = "delay" | "congestion";
@@ -81,8 +86,8 @@ export function OperationsView() {
 
     const u = utilizationPct(e);
     if (u >= 100) return "#dc2626"; // red
-    if (u >= 80) return "#f59e0b";  // amber
-    return "#94a3b8";               // slate
+    if (u >= 80) return "#f59e0b"; // amber
+    return "#94a3b8"; // slate
   };
 
   const summary = useMemo(() => {
@@ -115,7 +120,7 @@ export function OperationsView() {
           <button
             className={`px-3 py-1.5 text-sm rounded border ${
               mode === "delay"
-                ? "bg-blue-600 text-white border-blue-600"
+                ? "bg-green-600 text-white border-green-600"
                 : "bg-white text-slate-700"
             }`}
             onClick={() => setMode("delay")}
@@ -125,7 +130,7 @@ export function OperationsView() {
           <button
             className={`px-3 py-1.5 text-sm rounded border ${
               mode === "congestion"
-                ? "bg-blue-600 text-white border-blue-600"
+                ? "bg-green-600 text-white border-green-600"
                 : "bg-white text-slate-700"
             }`}
             onClick={() => setMode("congestion")}
@@ -138,15 +143,42 @@ export function OperationsView() {
       {err && <div className="mt-4 text-red-600 text-sm">{err}</div>}
 
       <div className="mt-6 border rounded-lg p-6 shadow-sm bg-white">
-        <div className="flex items-center justify-between">
-          <div className="text-sm font-medium text-slate-700">
-            Operational Network Map (Dynamic Status)
+        {/* Header + Legend + Actions */}
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="text-sm font-medium text-slate-700">
+              Operational Network Map (Dynamic Status)
+            </div>
+            <div className="mt-1 text-xs text-slate-500">
+              Links are colored by utilization (flow / capacity).
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+
+          <div className="flex items-center gap-3">
+            {/* Legend (matches linkColor thresholds) */}
+            <div className="hidden md:flex items-center gap-3 text-xs text-slate-600 border rounded-md px-3 py-2 bg-white">
+              <div className="font-semibold text-slate-700 mr-1">Legend</div>
+
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-3 h-3 rounded-sm bg-red-600" />
+                <span>≥ 100%</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-3 h-3 rounded-sm bg-amber-500" />
+                <span>80–99%</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="inline-block w-3 h-3 rounded-sm bg-slate-400" />
+                <span>&lt; 80%</span>
+              </div>
+            </div>
+
             <button className="px-3 py-1.5 text-sm rounded bg-slate-100 text-slate-700 border">
               Upload Excel
             </button>
-            <button className="px-3 py-1.5 text-sm rounded bg-blue-600 text-white border border-blue-600">
+            <button className="px-3 py-1.5 text-sm rounded bg-green-600 text-white border border-green-600">
               Download
             </button>
           </div>
@@ -178,18 +210,25 @@ export function OperationsView() {
             <div className="mt-4 space-y-2 text-sm text-slate-700">
               <div>
                 Capacity Scale:{" "}
-                <span className="font-semibold">{summary.capacityScale.toFixed(1)}×</span>
+                <span className="font-semibold">
+                  {summary.capacityScale.toFixed(1)}×
+                </span>
               </div>
               <div>
                 Objective ({mode === "delay" ? "Delay" : "Congestion"}):{" "}
-                <span className="font-semibold">{summary.objective.toFixed(1)}</span>
+                <span className="font-semibold">
+                  {summary.objective.toFixed(1)}
+                </span>
               </div>
               <div>
-                Total Delay: <span className="font-semibold">{summary.delay.toFixed(1)}</span>
+                Total Delay:{" "}
+                <span className="font-semibold">{summary.delay.toFixed(1)}</span>
               </div>
               <div>
                 Total Congestion:{" "}
-                <span className="font-semibold">{summary.congestion.toFixed(0)}</span>
+                <span className="font-semibold">
+                  {summary.congestion.toFixed(0)}
+                </span>
               </div>
               <div>
                 Max Utilization:{" "}
@@ -202,11 +241,14 @@ export function OperationsView() {
                 </span>
               </div>
               <div className="text-xs text-slate-500 pt-2">
-                Note: This summary is derived from edge-level outputs (flow/capacity/delay/congestion).
+                Note: This summary is derived from edge-level outputs
+                (flow/capacity/delay/congestion).
               </div>
             </div>
           ) : (
-            <div className="mt-4 text-slate-500">Waiting for optimization output…</div>
+            <div className="mt-4 text-slate-500">
+              Waiting for optimization output…
+            </div>
           )}
         </div>
 
@@ -236,9 +278,15 @@ export function OperationsView() {
                       const util = utilizationPct(e);
                       return (
                         <tr key={edgeKey(e)} className="border-b last:border-b-0">
-                          <td className="py-2 pr-3 text-slate-800">{edgeKey(e)}</td>
-                          <td className="py-2 px-3 text-right">{e.flow.toFixed(0)}</td>
-                          <td className="py-2 px-3 text-right">{e.capacity.toFixed(0)}</td>
+                          <td className="py-2 pr-3 text-slate-800">
+                            {edgeKey(e)}
+                          </td>
+                          <td className="py-2 px-3 text-right">
+                            {e.flow.toFixed(0)}
+                          </td>
+                          <td className="py-2 px-3 text-right">
+                            {e.capacity.toFixed(0)}
+                          </td>
                           <td
                             className={`py-2 px-3 text-right font-medium ${
                               util >= 100
@@ -250,15 +298,21 @@ export function OperationsView() {
                           >
                             {util.toFixed(1)}
                           </td>
-                          <td className="py-2 px-3 text-right">{e.delay.toFixed(1)}</td>
-                          <td className="py-2 pl-3 text-right">{e.congestion.toFixed(0)}</td>
+                          <td className="py-2 px-3 text-right">
+                            {e.delay.toFixed(1)}
+                          </td>
+                          <td className="py-2 pl-3 text-right">
+                            {e.congestion.toFixed(0)}
+                          </td>
                         </tr>
                       );
                     })}
                 </tbody>
               </table>
             ) : (
-              <div className="text-slate-500">Waiting for optimization output…</div>
+              <div className="text-slate-500">
+                Waiting for optimization output…
+              </div>
             )}
           </div>
         </div>

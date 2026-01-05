@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 const linkBase =
   "block px-4 py-3 text-sm border-l-4 transition";
 const active =
-  "border-l-blue-600 text-blue-700 bg-blue-50";
+  "border-l-green-600 text-green-700 bg-green-50";
 const inactive =
   "border-l-transparent text-slate-700 hover:bg-slate-50";
 
