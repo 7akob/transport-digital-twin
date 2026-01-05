@@ -2,10 +2,12 @@ from flask import Flask, jsonify, request
 from backend.network.optimize import pareto_endpoints
 from backend.network.init_network import init_network, add_edges
 from backend.network.export import save_pareto_results
+from flask_cors import CORS
 import tempfile
 from backend.network.load_excel import load_network_from_excel
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 ACTIVE_GRAPH = None
 
